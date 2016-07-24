@@ -1,6 +1,8 @@
-﻿using PRIVATE_PASSWORDS;
+﻿using Microsoft.Azure.Devices.Client;
+using PRIVATE_PASSWORDS;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -32,20 +34,39 @@ namespace UWP_Mqtt
             this.InitializeComponent();
             setup();
         }
-        const string MQTTSendTopic = "devices/" + ConnectionsMqtt.ClientId + "/messages/events";
-        const string MQTTReceiveTopic = "devices/" + ConnectionsMqtt.ClientId + "/messages/devicebound";
+        const string MQTTSendTopic = "devices/mqttdevice1/messages/events/";
+        const string MQTTReceiveTopic = "devices/mqttdevice1/messages/devicebound/";
+        private DeviceClient m_deviceClient;
+
         private async Task setup()
         {
-            m_mqtt = new MqttClient(ConnectionsMqtt.Connection, 8883, true, MqttSslProtocols.TLSv1_2);
-            //Device must be registered!
-            m_mqtt.Connect(ConnectionsMqtt.ClientId, ConnectionsMqtt.Username, ConnectionsMqtt.Password);
-            if (m_mqtt.IsConnected == false) throw new ArgumentException("Bad username/password for MQTT");
-            m_mqtt.MqttMsgPublished += M_mqtt_MqttMsgPublished;
-            m_mqtt.MqttMsgPublishReceived += M_mqtt_MqttMsgPublishReceived;
-            //m_mqtt.Subscribe(new string[] { MQTTReceiveTopic },new byte[] { 1 });
-            for (int i = 0; i < 10; i++)
+
+            //m_mqtt = new MqttClient(ConnectionsMqtt.Connection, 8883, true, MqttSslProtocols.TLSv1_2);
+            ////Device must be registered!
+            //m_mqtt.Connect(ConnectionsMqtt.ClientId, ConnectionsMqtt.Username, ConnectionsMqtt.Password);
+            //if (m_mqtt.IsConnected == false) throw new ArgumentException("Bad username/password for MQTT");
+            ////m_mqtt.MqttMsgPublished += M_mqtt_MqttMsgPublished;
+            ////m_mqtt.MqttMsgPublishReceived += M_mqtt_MqttMsgPublishReceived;
+            ////m_mqtt.Subscribe(new string[] { MQTTReceiveTopic },new byte[] { 1 });
+            //for (int i = 0; i < 10; i++)
+            //{
+            //    m_mqtt.Publish(MQTTSendTopic, System.Text.Encoding.UTF8.GetBytes("ABC"),1,false);
+            //}
+            m_deviceClient = DeviceClient.CreateFromConnectionString(ConnectionsIot.DeviceConnectionString, TransportType.Amqp_Tcp_Only);
+            await m_deviceClient.SendEventAsync(new Message(System.Text.Encoding.UTF8.GetBytes("ABC")));
+            waitForMessage();
+        }
+
+        private async void waitForMessage()
+        {
+            while(true)
             {
-                m_mqtt.Publish(MQTTSendTopic, System.Text.Encoding.UTF8.GetBytes("ABC"));
+                var msg = await m_deviceClient.ReceiveAsync();
+                if (msg!=null)
+                {
+                    Debug.WriteLine(System.Text.Encoding.UTF8.GetString(msg.GetBytes()));
+                    await m_deviceClient.CompleteAsync(msg);
+                }
             }
         }
 

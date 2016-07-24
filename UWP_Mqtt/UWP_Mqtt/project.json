@@ -1,7 +1,8 @@
 ﻿{
   "dependencies": {
     "M2Mqtt": "4.3.0",
-    "Microsoft.NETCore.UniversalWindowsPlatform": "5.1.0"
+    "Microsoft.Azure.Devices.Client": "1.0.13",
+    "Microsoft.NETCore.UniversalWindowsPlatform": "5.2.2"
   },
   "frameworks": {
     "uap10.0": {}
