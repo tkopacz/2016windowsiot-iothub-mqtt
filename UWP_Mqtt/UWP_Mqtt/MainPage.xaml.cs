@@ -8,6 +8,7 @@ using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using uPLibrary.Networking.M2Mqtt;
+using uPLibrary.Networking.M2Mqtt.Messages;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
@@ -35,23 +36,24 @@ namespace UWP_Mqtt
             setup();
         }
         const string MQTTSendTopic = "devices/mqttdevice1/messages/events/";
-        const string MQTTReceiveTopic = "devices/mqttdevice1/messages/devicebound/";
+        const string MQTTReceiveTopic = "devices/mqttdevice1/messages/devicebound/#";
         private DeviceClient m_deviceClient;
 
         private async Task setup()
         {
+            m_mqtt = new MqttClient(ConnectionsMqtt.Connection, 8883, true, MqttSslProtocols.TLSv1_2);
+            //Device must be registered!
+            m_mqtt.MqttMsgPublishReceived += M_mqtt_MqttMsgPublishReceived;
+            m_mqtt.Subscribe(new string[] { MQTTReceiveTopic }, new byte[] { MqttMsgBase.QOS_LEVEL_AT_MOST_ONCE });
+            m_mqtt.Connect(ConnectionsMqtt.ClientId, ConnectionsMqtt.Username, ConnectionsMqtt.Password);
+            if (m_mqtt.IsConnected == false) throw new ArgumentException("Bad username/password for MQTT");
+            m_mqtt.Publish(MQTTSendTopic, System.Text.Encoding.UTF8.GetBytes("ABC"), 1, false);
 
-            //m_mqtt = new MqttClient(ConnectionsMqtt.Connection, 8883, true, MqttSslProtocols.TLSv1_2);
-            ////Device must be registered!
-            //m_mqtt.Connect(ConnectionsMqtt.ClientId, ConnectionsMqtt.Username, ConnectionsMqtt.Password);
-            //if (m_mqtt.IsConnected == false) throw new ArgumentException("Bad username/password for MQTT");
-            ////m_mqtt.MqttMsgPublished += M_mqtt_MqttMsgPublished;
-            ////m_mqtt.MqttMsgPublishReceived += M_mqtt_MqttMsgPublishReceived;
-            ////m_mqtt.Subscribe(new string[] { MQTTReceiveTopic },new byte[] { 1 });
-            //for (int i = 0; i < 10; i++)
-            //{
-            //    m_mqtt.Publish(MQTTSendTopic, System.Text.Encoding.UTF8.GetBytes("ABC"),1,false);
-            //}
+            //testIotSDK();
+        }
+
+        private async Task testIotSDK()
+        {
             m_deviceClient = DeviceClient.CreateFromConnectionString(ConnectionsIot.DeviceConnectionString, TransportType.Amqp_Tcp_Only);
             await m_deviceClient.SendEventAsync(new Message(System.Text.Encoding.UTF8.GetBytes("ABC")));
             waitForMessage();
@@ -72,10 +74,8 @@ namespace UWP_Mqtt
 
         private void M_mqtt_MqttMsgPublishReceived(object sender, uPLibrary.Networking.M2Mqtt.Messages.MqttMsgPublishEventArgs e)
         {
+            Debug.WriteLine(System.Text.Encoding.UTF8.GetString(e.Message));
         }
 
-        private void M_mqtt_MqttMsgPublished(object sender, uPLibrary.Networking.M2Mqtt.Messages.MqttMsgPublishedEventArgs e)
-        {
-        }
     }
 }
