@@ -640,6 +640,66 @@
             Supported versions in preferred order.
             </summary>
         </member>
+        <member name="T:Microsoft.Azure.Amqp.X509.X509CertificateIdentity">
+            <summary>
+            Represents an X509 certificate as a security identity
+            </summary>
+        </member>
+        <member name="M:Microsoft.Azure.Amqp.X509.X509CertificateIdentity.#ctor(System.Security.Cryptography.X509Certificates.X509Certificate2,System.Boolean)">
+            <summary>
+            ctor which takes a X509 certificate
+            </summary>
+            <param name="certificate"></param>
+            <param name="isAuthenticated"></param>
+        </member>
+        <member name="P:Microsoft.Azure.Amqp.X509.X509CertificateIdentity.Name">
+            <summary>
+            Name accessor
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Amqp.X509.X509CertificateIdentity.AuthenticationType">
+            <summary>
+             Authentication type accessor
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Amqp.X509.X509CertificateIdentity.IsAuthenticated">
+            <summary>
+             IsAuthenticated accessor
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Amqp.X509.X509CertificateIdentity.Certificate">
+            <summary>
+             Actual X509 Certificate
+            </summary>
+        </member>
+        <member name="T:Microsoft.Azure.Amqp.X509.X509Principal">
+            <summary>
+            Used to report a X509 certificate used as a security credential 
+            </summary>
+        </member>
+        <member name="M:Microsoft.Azure.Amqp.X509.X509Principal.#ctor(Microsoft.Azure.Amqp.X509.X509CertificateIdentity)">
+            <summary>
+            Ctor which takes identity as input
+            </summary>
+            <param name="identity"></param>
+        </member>
+        <member name="P:Microsoft.Azure.Amqp.X509.X509Principal.Identity">
+            <summary>
+            Get Accessor
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Amqp.X509.X509Principal.CertificateIdentity">
+            <summary>
+             Type specific get accessor
+            </summary>
+        </member>
+        <member name="M:Microsoft.Azure.Amqp.X509.X509Principal.IsInRole(System.String)">
+            <summary>
+             Method not implemented
+            </summary>
+            <param name="role"></param>
+            <returns></returns>
+        </member>
         <member name="M:Microsoft.Azure.Amqp.InternalBufferManager.PreallocatedBufferManager.ReturnBuffer(System.Byte[])">
             <summary>
             Returned buffer must have been acquired via a call to TakeBuffer
